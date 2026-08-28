@@ -5,7 +5,7 @@ const {
   getSingleNoteController,
   updateNoteController,
   deleteNoteController,
-} = require("../src/controllers/notes.controller");
+} = require("../controllers/notes.controller");
 const router = express.Router();
 
 // create
