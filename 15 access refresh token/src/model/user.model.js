@@ -1,0 +1,28 @@
+import mongoose from "mongoose";
+
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    minLength: 3,
+    maxLength: 50,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    pattern:
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
+  },
+  passwordHash: {
+    type: String,
+    required: true,
+  },
+  refreshToken: {
+    type: String,
+  },
+});
+
+const userModel = mongoose.model("user", userSchema);
+
+export default userModel;
