@@ -5,7 +5,7 @@ import Profile from "./pages/Profile";
 const App = () => {
   const router = createBrowserRouter([
     {
-      path: "/",
+      path: "/register",
       element: <Register />,
     },
     {

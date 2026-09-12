@@ -1,26 +1,37 @@
 import axios from "axios";
 import { useAuth } from "../AuthContext";
 
-const api = axios.create({
-  baseURL: "http://127.0.0.1/api",
-});
+export default function useApi() {
+  // user , setUser , accessToken , setAccessToken
+  const authContext = useAuth();
 
-const useApi = () => {
-  const { accessToken } = useAuth();
+  const api = axios.create({
+    baseURL: "http://localhost:5173/api",
+    withCredentials: true,
+  });
 
-  api.interceptors.request.use(
-    (config) => {
-      if (accessToken) {
-        config.headers.Authorization = `Bearer ${accessToken}`;
+  api.interceptors.request.use((config) => {
+    config.headers.Authorization = `Bearer ${authContext.accessToken}`;
+
+    return config;
+  });
+
+  // handle for 401 Unauthorized responses
+  api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      if (error.response && error.response.status === 401) {
+        const res = await axios.post("/api/auth/refresh");
+
+        authContext.setAccessToken(res.data.accessToken);
+
+        error.config.headers.Authorization = `Bearer ${res.data.accessToken}`;
+
+        return axios(error.config);
       }
-      return config;
-    },
-    (error) => {
       return Promise.reject(error);
     },
   );
 
   return api;
-};
-
-export default useApi;
+}

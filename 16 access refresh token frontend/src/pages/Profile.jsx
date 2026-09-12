@@ -1,22 +1,24 @@
+import React, { useEffect } from "react";
 import { useAuth } from "../AuthContext";
+import useApi from "../shared/api";
 
 const Profile = () => {
-  const { user, loading, isAuthenticated, logout } = useAuth();
+  const { setUser, user } = useAuth();
+  const api = useApi();
 
-  if (loading) {
-    return <div>Loading...</div>;
+  async function fetchUser() {
+    const response = await api.get("/auth/me");
+    setUser(response.data.data.user);
   }
-
-  if (!isAuthenticated) {
-    return <div>Not logged in</div>;
-  }
+  useEffect(() => {
+    fetchUser();
+  }, []);
 
   return (
     <div>
-      <h1>Profile</h1>
-      <p>Name: {user.name}</p>
-      <p>Email: {user.email}</p>
-      <button onClick={logout}>Logout</button>
+      <h1>User Profile</h1>
+      <p>Name: {user?.name}</p>
+      <p>Email: {user?.email}</p>
     </div>
   );
 };
