@@ -1,6 +1,6 @@
 import urlModel from "../models/url.model.js";
 
-async function getAllController(req, res) {
+async function getAllUrlController(req, res) {
   const urls = await urlModel.find();
 
   return res.status(200).json({
@@ -11,4 +11,4 @@ async function getAllController(req, res) {
   });
 }
 
-export default getAllController;
+export default getAllUrlController;
