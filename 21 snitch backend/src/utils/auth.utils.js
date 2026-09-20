@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { config } from "../config/env.config";
+import { config } from "../config/env.config.js";
 
 export function createAccessToken({ userId, role }) {
   const accessToken = jwt.sign(
@@ -25,4 +25,12 @@ export function createRefreshToken({ userId, role }) {
   );
 
   return refreshToken;
+}
+
+export function readRefreshToken(refreshToken) {
+  return jwt.verify(refreshToken, config.REFRESH_TOKEN_SECRET);
+}
+
+export function readAccessToken(accessToken) {
+  return jwt.verify(accessToken, config.ACCESS_TOKEN_SECRET);
 }
