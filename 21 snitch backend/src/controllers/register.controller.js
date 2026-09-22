@@ -16,7 +16,6 @@ import {
  */
 
 export async function registerController(req, res) {
-  console.log(req.body);
   const { email, name, password } = req.body;
 
   const isUserAlreadyExists = await userModel.findOne({ email });
