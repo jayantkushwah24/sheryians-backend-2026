@@ -1,6 +1,6 @@
-import { body } from "express-validator";
+import { body, validationResult } from "express-validator";
 
-export const productValidator = [
+export const createProductValidator = [
   body("title")
     .exists()
     .withMessage("title is required")
@@ -34,5 +34,36 @@ export const productValidator = [
     .isString()
     .withMessage("price currency must be a string")
     .isIn(["USD", "INR"])
-    .withMessage("currency must be either INR or USD")
+    .withMessage("currency must be either INR or USD"),
+  body("sizes")
+    .exists()
+    .withMessage("sizes are equal")
+    .bail()
+    .isArray()
+    .withMessage("sizes must be an array of objects"),
+  body("sizes.*.size")
+    .exists()
+    .withMessage("size is required")
+    .bail()
+    .isIn(["XS", "S", "M", "L", "XL", "XXL"])
+    .withMessage("invalid size"),
+  body("sizes.*.stock")
+    .exists()
+    .withMessage("stock is required")
+    .bail()
+    .isInt({ min: 0 })
+    .withMessage("stock must be an integer value"),
+
+  (req, res, next) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        message: "invalid request",
+        errors: errors.array(),
+      });
+    }
+
+    next();
+  },
 ];
