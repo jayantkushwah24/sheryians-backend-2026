@@ -50,6 +50,10 @@ const productSchema = mongoose.Schema({
     ref: "users",
     required: true,
   },
+  published: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const productModel = mongoose.model("products", productSchema);

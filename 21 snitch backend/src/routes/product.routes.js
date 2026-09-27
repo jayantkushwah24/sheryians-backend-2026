@@ -4,8 +4,18 @@ import {
   authenticate,
   authenticateSeller,
 } from "../middleware/auth.middleware.js";
-import { createProduct, listAllProduct } from "../controllers/product.controller.js";
-import { createProductValidator } from "../validators/product.validator.js";
+import {
+  createProduct,
+  listAllProduct,
+  listAllProductsToSeller,
+  listProduct,
+  unlistProduct,
+} from "../controllers/product.controller.js";
+import {
+  createProductValidator,
+  listProductValidator,
+  unlistProductValidator,
+} from "../validators/product.validator.js";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -46,9 +56,50 @@ router.post(
 /**
  * @method GET
  * @route /api/products
- * @description Read all the products from the DB
+ * @description Read all the published products from the DB
  * @access user
  */
 router.get("/", authenticate, listAllProduct);
+
+/**
+ * @method GET
+ * @route /api/product/seller
+ * @description Read all the products from the DB
+ * @access seller
+ */
+router.get(
+  "/seller",
+  authenticate,
+  authenticateSeller,
+  listAllProductsToSeller,
+);
+
+/**
+ * @method PATCH
+ * @route /api/products/unlist/:id
+ * @description Unlist a product by its ID
+ * @access seller
+ */
+router.patch(
+  "/unlist/:id",
+  authenticate,
+  authenticateSeller,
+  unlistProductValidator,
+  unlistProduct,
+);
+
+/**
+ * @method PATCH
+ * @route /api/products/unlist/:id
+ * @description list a product by its ID
+ * @access seller
+ */
+router.patch(
+  "/unlist/:id",
+  authenticate,
+  authenticateSeller,
+  listProductValidator,
+  listProduct,
+);
 
 export default router;
