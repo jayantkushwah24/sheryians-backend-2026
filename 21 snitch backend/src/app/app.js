@@ -9,6 +9,6 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.use("/api/auth", authRouter);
-app.user("/api/products", productRouter);
+app.use("/api/products", productRouter);
 
 export default app;

@@ -131,7 +131,7 @@ export async function refreshController(req, res) {
   }
 
   try {
-    const { userId, role } = readRefreshToken(readRefreshToken);
+    const { userId, role } = readRefreshToken(refreshToken);
 
     const user = await userModel.findById(userId);
 
@@ -191,6 +191,7 @@ export async function getMe(req, res) {
         email: user.email,
         name: user.name,
         id: user._id,
+        role
       },
     },
   });

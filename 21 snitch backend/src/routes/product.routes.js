@@ -1,7 +1,10 @@
 import express from "express";
 import multer from "multer";
-import { authenticate } from "../middleware/auth.middleware.js";
-import { createProduct } from "../controllers/product.controller.js";
+import {
+  authenticate,
+  authenticateSeller,
+} from "../middleware/auth.middleware.js";
+import { createProduct, listAllProduct } from "../controllers/product.controller.js";
 import { createProductValidator } from "../validators/product.validator.js";
 
 const upload = multer({
@@ -27,14 +30,7 @@ router.post(
   // –––––––––––––– check is user authenticate ––––––––––––––––––––
   authenticate,
   // –––––––––––––– check the role is seller or not ––––––––––––––––––––
-  (req, res, next) => {
-    if (req.user.role != "seller") {
-      return res.status(403).json({
-        message: "user is not authorize to create products",
-      });
-      next();
-    }
-  },
+  authenticateSeller,
   // required for reading the data from req.body if the formate is form-data(multipart-form-data) ––––––––––––––––––––
   upload.array("images"),
   // –––––––––––––– parse the complex data like object and array into json ––––––––––––––––––––
@@ -46,5 +42,13 @@ router.post(
   createProductValidator,
   createProduct,
 );
+
+/**
+ * @method GET
+ * @route /api/products
+ * @description Read all the products from the DB
+ * @access user
+ */
+router.get("/", authenticate, listAllProduct);
 
 export default router;
