@@ -1,17 +1,27 @@
 const env = require("./config/env");
 const app = require("./app");
 const connectDB = require("./config/db");
+const MenuItem = require("./models/menuItem.model");
+const Order = require("./models/order.model");
+const Restaurant = require("./models/restaurant.model");
 
 const PORT = env.PORT;
 
 async function startServer() {
   if (!env.ACCESS_TOKEN_SECRET || !env.REFRESH_TOKEN_SECRET) {
-    console.error("ACCESS_TOKEN_SECRET and REFRESH_TOKEN_SECRET must be set in .env");
+    console.error(
+      "ACCESS_TOKEN_SECRET and REFRESH_TOKEN_SECRET must be set in .env",
+    );
     process.exit(1);
   }
 
   try {
     await connectDB();
+    await Promise.all([
+      MenuItem.createIndexes(),
+      Order.createIndexes(),
+      Restaurant.createIndexes(),
+    ]);
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });

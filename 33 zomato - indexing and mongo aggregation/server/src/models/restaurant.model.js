@@ -13,20 +13,28 @@ const pointSchema = new mongoose.Schema(
       },
     },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const restaurantSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
-    owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
     city: { type: String, required: true, trim: true },
     area: { type: String, trim: true },
     cuisines: { type: [String], default: [] },
     location: { type: pointSchema, required: true },
     isOpen: { type: Boolean, default: true },
   },
-  { timestamps: { createdAt: true, updatedAt: false } }
+  { timestamps: { createdAt: true, updatedAt: false } },
 );
+
+restaurantSchema.index({ name: 1, _id: 1 });
+restaurantSchema.index({ city: 1, name: 1, _id: 1 });
 
 module.exports = mongoose.model("Restaurant", restaurantSchema);

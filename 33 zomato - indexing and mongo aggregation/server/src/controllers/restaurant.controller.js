@@ -28,7 +28,9 @@ async function getRestaurants(req, res) {
 
   const [restaurants, total] = await Promise.all([
     Restaurant.find(filter).sort({ name: 1, _id: 1 }).skip(skip).limit(limit),
-    Restaurant.countDocuments(filter),
+    Object.keys(filter).length === 0
+      ? Restaurant.estimatedDocumentCount()
+      : Restaurant.countDocuments(filter),
   ]);
 
   res.json({ page, limit, total, totalPages: Math.ceil(total / limit), restaurants });

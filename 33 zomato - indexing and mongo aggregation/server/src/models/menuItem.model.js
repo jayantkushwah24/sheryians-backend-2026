@@ -1,7 +1,11 @@
 const mongoose = require("mongoose");
 
 const menuItemSchema = new mongoose.Schema({
-  restaurant: { type: mongoose.Schema.Types.ObjectId, ref: "Restaurant", required: true },
+  restaurant: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Restaurant",
+    required: true,
+  },
   name: { type: String, required: true, trim: true },
   category: { type: String, trim: true, default: "Other" },
   price: { type: Number, required: true, min: 0 },
@@ -9,4 +13,7 @@ const menuItemSchema = new mongoose.Schema({
   isAvailable: { type: Boolean, default: true },
 });
 
-module.exports = mongoose.model("MenuItem", menuItemSchema);
+menuItemSchema.index({ restaurant: 1 });
+
+const menuItemModel = mongoose.model("MenuItem", menuItemSchema);
+module.exports = menuItemModel;

@@ -5,10 +5,14 @@ A Zomato-style food ordering backend, built as a **teaching starter repo**.
 The CRUD API and auth already work. Your job is to make it **fast** (indexes) and
 **smart** (aggregation pipelines). To keep that work for you, this repo deliberately has:
 
-- **no indexes** other than the default `_id` index (and `autoIndex: false` in the Mongoose connection)
+- `autoIndex: false` in the Mongoose connection; the server explicitly creates the declared
+  restaurant-list, menu-item, and order indexes at startup
 - **no aggregation pipelines**. The analytics endpoints are stubs that return `501 Not Implemented`.
 
 Stack: Node.js, Express 5, MongoDB with Mongoose, JWT (access + refresh tokens), plain JavaScript (CommonJS).
+
+The unfiltered `GET /api/restaurants` list uses MongoDB's metadata-based estimated document count for
+fast pagination totals. City-filtered list totals use an exact count.
 
 ---
 
@@ -231,7 +235,8 @@ Tips:
 - Good candidates to think about: a unique index on `users.email`, `{ restaurant: 1, createdAt: -1 }` on orders,
   a text index on restaurants, and a `2dsphere` index on `restaurants.location`.
 - Mongoose's `autoIndex` is `false`, so indexes you declare in a schema are **not** built automatically.
-  Call `Model.syncIndexes()` / `createIndexes()`, or create them in `mongosh`.
+  The server explicitly calls `createIndexes()` for the restaurant, menu-item, and order models at
+  startup; for other indexes, call `Model.createIndexes()` / `syncIndexes()`, or create them in `mongosh`.
 
 ## Project structure
 
