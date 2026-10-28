@@ -203,6 +203,70 @@ async function getRestaurantRevenue(req, res) {
   });
 }
 
+// GET /api/restaurants/:id/top-customers  (owner, own restaurant only)
+async function getTopCustomers(req, res) {
+  const { id } = req.params.id;
+
+  const response = await Order.aggregate([
+    {
+      $match: {
+        restaurant: new mongoose.Types.ObjectId(id),
+        status: "delivered",
+      },
+    },
+    {
+      $group: {
+        _id: "$customer",
+        totalRevenue: {
+          $sum: "$totalAmount",
+        },
+        totalOrder: {
+          $sum: 1,
+        },
+        averageOrderValue: {
+          $avg: "$totalAmount",
+        },
+      },
+    },
+    {
+      $sort: {
+        totalRevenue: -1,
+      },
+    },
+    {
+      $limit: 3,
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "_id",
+        foreignField: "_id",
+        as: "user",
+        pipeline: [
+          {
+            $project: {
+              name: 1,
+              email: 1,
+              _id: 0,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $unwind: {
+        path: "$user",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+  ]);
+
+  return res.json({
+    message: "Top customers retrieved successfully",
+    topCustomers: response,
+  });
+}
+
 module.exports = {
   getRestaurants,
   getRestaurantById,
@@ -210,4 +274,5 @@ module.exports = {
   updateRestaurant,
   deleteRestaurant,
   getRestaurantRevenue,
+  getTopCustomers,
 };
