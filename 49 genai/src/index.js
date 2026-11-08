@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { createAgent, tool } from "langchain";
 import rl from "readline/promises";
 import * as z from "zod";
+import { StateGraph, START, END } from "@langchain/langgraph";
 
 dotenv.config();
 
@@ -17,7 +18,7 @@ const createEventTool = tool(
       title,
       description,
     });
-    return "Event created";
+    return "Event created. ";
   },
   {
     name: "createEvent",
@@ -52,50 +53,37 @@ const model = new ChatGroq({
   apiKey: process.env.GROQ_API_KEY,
 });
 
-// const messages = [];
+// ------------LLM NODE-----------
+async function LLMNode(state) {
+  console.log("LLM Node state: ", state);
 
-const agent = createAgent({
-  model,
-  tools: [createEventTool, getEventsTool],
+  return {
+    messages: [
+      ...state.messages,
+      {
+        role: "assistant",
+        content: "Hello, user!",
+      },
+    ],
+  };
+}
+
+const graph = new StateGraph(
+  z.object({
+    messages: z.array(z.any()),
+  }),
+)
+  .addNode("LLMNode", LLMNode)
+  .addEdge(START, "LLMNode")
+  .addEdge("LLMNode", END).compile;
+
+const graphResult = await graph.invoke({
+  messages: [
+    {
+      role: "user",
+      content: "Hello, world!",
+    },
+  ],
 });
 
-while (true) {
-  const userInput = await readline.question("Enter your input: ");
-
-  // messages.push({
-  //   role: "user",
-  //   content: userInput,
-  // });
-
-  // const stream = await model.stream(messages);
-
-  const stream = await agent.stream(
-    {
-      messages: [
-        {
-          role: "user",
-          content: userInput,
-        },
-      ],
-    },
-    { streamMode: "messages" },
-  );
-
-  // const aiMessage = "";
-
-  for await (const [chunk] of stream) {
-    process.stdout.write(chunk.content);
-  }
-
-  // for await (const chunk of stream) {
-  //   aiMessage += chunk.messages;
-  //   process.stdout.write(chunk.content);
-  // }
-
-  // messages.push({
-  //   role: "assistant",
-  //   content: aiMessage,
-  // });
-
-  process.stdout.write("\n");
-}
+console.log("Graph result: ", graphResult);
